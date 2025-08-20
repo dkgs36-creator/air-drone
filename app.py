@@ -64,6 +64,7 @@ def calculate_earned_credits(track_info, completed_courses):
             recommended.append(group[0])
 
     return total_credits, recommended
+    
 def get_completed_track_matches(completed_courses):
     completed_names = set(name for name, _ in completed_courses)
     matches = {}
@@ -101,7 +102,7 @@ completed_courses = [(c.strip(), 3) for c in completed_input.split(",") if c.str
 
 # 버튼 클릭 시 결과 출력
 if st.button("추천 보기"):
-    matches = get_completed_track_matches(completed_list)
+    matches = get_completed_track_matches(completed_course)
 if matches:
     st.subheader("✅ 입력한 과목이 속한 트랙")
     for track, matched_courses in matches.items():
