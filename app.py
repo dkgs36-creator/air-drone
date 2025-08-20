@@ -84,7 +84,7 @@ st.title("✈️ 항공드론 트랙 추천 시스템")
 st.write("👉 25-1학기에 수강한 과목들을 입력하면, 이수 추천 마이크로디그리와 추천 과목을 보여줍니다.")
 
 # 사용자 입력
-completed_input = st.text_area("수강 완료 과목 입력 (쉼표로 구분)", "AI입문, 컴퓨터프로그래밍")
+completed_input = st.text_area("수강 완료 과목 입력 (쉼표로 구분, 과목명은 모두 붙여쓰기로 입력(띄어쓰기X)", "AI입문, 컴퓨터프로그래밍")
 completed_courses = [(c.strip(), 3) for c in completed_input.split(",") if c.strip()]
 
 # 버튼 클릭 시 결과 출력
