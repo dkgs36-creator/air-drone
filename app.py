@@ -64,7 +64,19 @@ def calculate_earned_credits(track_info, completed_courses):
             recommended.append(group[0])
 
     return total_credits, recommended
+def get_completed_track_matches(completed_courses):
+    completed_names = set(name for name, _ in completed_courses)
+    matches = {}
 
+    for track, info in track_courses.items():
+        track_courses_list = [c for c, _ in info["required"]]
+        for group in info.get("or_groups", []):
+            track_courses_list.extend([c for c, _ in group])
+        matched = [c for c in track_courses_list if c in completed_names]
+        if matched:
+            matches[track] = matched
+
+    return matches
 
 def recommend_next_courses(completed_courses):
     recommendations = {}
@@ -89,6 +101,12 @@ completed_courses = [(c.strip(), 3) for c in completed_input.split(",") if c.str
 
 # 버튼 클릭 시 결과 출력
 if st.button("추천 보기"):
+    matches = get_completed_track_matches(completed_list)
+if matches:
+    st.subheader("✅ 입력한 과목이 속한 트랙")
+    for track, matched_courses in matches.items():
+        st.write(f"- **{track}**: {', '.join(matched_courses)}")
+        
     recs = recommend_next_courses(completed_courses)
     if not recs:
         st.success("모든 트랙 조건을 만족했거나 추가 추천이 필요하지 않습니다! 🎉")
