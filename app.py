@@ -102,7 +102,7 @@ completed_courses = [(c.strip(), 3) for c in completed_input.split(",") if c.str
 
 # 버튼 클릭 시 결과 출력
 if st.button("추천 보기"):
-    matches = get_completed_track_matches(completed_course)
+    matches = get_completed_track_matches(completed_courses)
 if matches:
     st.subheader("✅ 입력한 과목이 속한 트랙")
     for track, matched_courses in matches.items():
