@@ -75,7 +75,7 @@ def recommend_next_courses(completed_courses):
         elif "심화" in track and total_credits < 9:
             recommendations[track] = {"필요학점": 9 - total_credits, "추천과목": recommended}
     recommendations = dict(
-        sorted(recommendations.item(), key)
+        sorted(recommendations.items(), key)
     return recommendations
 
 # === Streamlit UI ===
