@@ -1,7 +1,6 @@
 
 import streamlit as st
 
-# === 데이터 (트랙/과목) ===
 track_courses = {
     "항공드론 초급": {
         "required": [
@@ -43,7 +42,6 @@ track_courses = {
     }
 }
 
-# === 계산 함수 ===
 def calculate_earned_credits(track_info, completed_courses):
     completed_names = set(name for name, _ in completed_courses)
     total_credits = 0
