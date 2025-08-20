@@ -65,6 +65,19 @@ def calculate_earned_credits(track_info, completed_courses):
 
     return total_credits, recommended
     
+def recommend_next_courses(completed_courses):
+    recommendations = {}
+    for track, info in track_courses.items():
+        total_credits, recommended = calculate_earned_credits(info, completed_courses)
+        if "초급" in track and total_credits < 6:
+            recommendations[track] = {"필요학점": 6 - total_credits, "추천과목": recommended}
+        elif "심화" in track and total_credits < 9:
+            recommendations[track] = {"필요학점": 9 - total_credits, "추천과목": recommended}
+    recommendations = dict(
+        sorted(recommendations.items(), key=lambda x: x[1]["필요학점"])
+    )
+    return recommendations
+
 def get_completed_track_matches(completed_courses):
     completed_names = set(name for name, _ in completed_courses)
     matches = {}
@@ -79,19 +92,6 @@ def get_completed_track_matches(completed_courses):
 
     return matches
 
-def recommend_next_courses(completed_courses):
-    recommendations = {}
-    for track, info in track_courses.items():
-        total_credits, recommended = calculate_earned_credits(info, completed_courses)
-        if "초급" in track and total_credits < 6:
-            recommendations[track] = {"필요학점": 6 - total_credits, "추천과목": recommended}
-        elif "심화" in track and total_credits < 9:
-            recommendations[track] = {"필요학점": 9 - total_credits, "추천과목": recommended}
-    recommendations = dict(
-        sorted(recommendations.items(), key=lambda x: x[1]["필요학점"])
-    )
-    return recommendations
-
 # === Streamlit UI ===
 st.title("✈️ 항공드론 트랙 추천 시스템")
 st.write("👉 25-1학기에 수강한 과목들을 입력하면, 이수 추천 마이크로디그리와 추천 과목을 보여줍니다.")
@@ -101,20 +101,25 @@ completed_input = st.text_area("수강 완료 과목 입력 (쉼표로 구분, �
 completed_courses = [(c.strip(), 3) for c in completed_input.split(",") if c.strip()]
 
 # 버튼 클릭 시 결과 출력
-if st.button("추천 보기"):
-    matches = get_completed_track_matches(completed_courses)
-if matches:
-    st.subheader("✅ 입력한 과목이 속한 트랙")
-    for track, matched_courses in matches.items():
-        st.write(f"- **{track}**: {', '.join(matched_courses)}")
-        
-    recs = recommend_next_courses(completed_courses)
-    if not recs:
-        st.success("모든 트랙 조건을 만족했거나 추가 추천이 필요하지 않습니다! 🎉")
+if not completed_list:
+        st.write("❗ 과목을 입력해주세요.")
     else:
-        for track, data in recs.items():
-            st.subheader(track)
-            st.write(f"✅ 부족 학점: **{data['필요학점']} 학점**")
-            st.write("📘 추천 과목:")
-            for course, credit in data["추천과목"]:
-                st.write(f"- {course} ({credit}학점)")
+        # ✅ 1) 입력한 과목이 속한 트랙 표시
+        matches = get_completed_track_matches(completed_list)
+        if matches:
+            st.subheader("✅ 입력한 과목이 속한 트랙")
+            for track, matched_courses in matches.items():
+                st.write(f"- **{track}**: {', '.join(matched_courses)}")
+
+        # ✅ 2) 부족 학점 + 추천 과목 표시
+        recs = recommend_next_courses(completed_list)
+        if not recs:
+            st.write("추천할 트랙이 없습니다. 이미 이수 조건을 만족했을 수 있습니다.")
+        else:
+            st.subheader("📌 부족 학점 및 추천 과목")
+            for track, info in recs.items():
+                st.markdown(f"### {track}")
+                st.write(f"👉 추가 필요 학점: {info['필요학점']}")
+                st.write("추천 과목:")
+                for course, credit in info["추천과목"]:
+                    st.write(f"- {course} ({credit}학점)")
