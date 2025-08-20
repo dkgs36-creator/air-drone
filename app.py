@@ -76,6 +76,7 @@ def recommend_next_courses(completed_courses):
             recommendations[track] = {"필요학점": 9 - total_credits, "추천과목": recommended}
     recommendations = dict(
         sorted(recommendations.items(), key=lambda x: x[1]["필요학점"])
+    )
     return recommendations
 
 # === Streamlit UI ===
