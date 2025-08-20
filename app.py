@@ -81,7 +81,7 @@ def recommend_next_courses(completed_courses):
 
 # === Streamlit UI ===
 st.title("✈️ 항공드론 트랙 추천 시스템")
-st.write("👉 수강 완료한 과목들을 입력하면, 부족한 학점과 추천 과목을 보여줍니다.")
+st.write("👉 25-1학기에 수강한 과목들을 입력하면, 이수 추천 마이크로디그리와 추천 과목을 보여줍니다.")
 
 # 사용자 입력
 completed_input = st.text_area("수강 완료 과목 입력 (쉼표로 구분)", "AI입문, 컴퓨터프로그래밍")
