@@ -112,6 +112,9 @@ st.markdown(
 completed = st.text_area("여기에 과목을 입력하세요")
 completed_list = [(c.strip(), 3) for c in completed.split(",") if c.strip()]
 
+import pandas as pd
+import streamlit as st
+
 if st.button("추천 확인"):
     if not completed_list:
         st.write("❗ 과목을 입력해주세요.")
@@ -123,7 +126,7 @@ if st.button("추천 확인"):
             for track, matched_courses in matches.items():
                 st.write(f"- **{track}**: {', '.join(matched_courses)}")
 
-        # ✅ 2) 부족 학점 + 추천 과목 표시
+        # ✅ 2) 부족 학점 + 추천 과목 표시 (표로)
         recs = recommend_next_courses(completed_list)
         if not recs:
             st.write("추천할 트랙이 없습니다. 이미 이수 조건을 만족했을 수 있습니다.")
@@ -132,8 +135,12 @@ if st.button("추천 확인"):
             for track, info in recs.items():
                 st.markdown(f"### {track}")
                 st.write(f"👉 추가 필요 학점: {info['필요학점']}")
-                st.write("추천 과목:")
-                for course, credit in info["추천과목"]:
-                    st.write(f"- {course} ({credit}학점)")
 
-st.markdown("📖 [마이크로디그리 과정표 보기](https://docs.google.com/spreadsheets/d/1YA47-Sxiu7Yw7lzuBNxR3cMA0uVkwb-jxkxMHhFCBT4/edit?usp=sharing)")
+                # 표로 정리
+                df = pd.DataFrame(info["추천과목"], columns=["과목명", "학점"])
+                st.table(df)
+
+        # ✅ 마지막에 외부 링크 추가
+        st.markdown("---")
+        st.markdown("📖 [마이크로디그리 과정표 보러가기](https://example.com/microdegree)")
+
