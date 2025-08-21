@@ -98,7 +98,7 @@ import streamlit as st
 
 st.markdown(
     """
-    <h3 style="font-size:24px; "color:darkblue;">당신에게 적합한 항공드론 수준형 마이크로디그리를 추천해드립니다!</h3>
+    <h3 style="font-size:20px; color:darkblue;">당신에게 적합한 항공드론 수준형 마이크로디그리를 추천해드립니다!</h3>
     <p style="font-size:18px; color:black;">
     25-1학기에 수강완료(F학점 제외)한 전체과목을 입력해주세요.<br><br>
     입력시 과목구분은 쉼표로 입력! 과목명에 띄어쓰기가 있는 경우는 입력X! <br><br>
