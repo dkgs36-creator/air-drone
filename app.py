@@ -140,7 +140,5 @@ if st.button("추천 확인"):
                 df = pd.DataFrame(info["추천과목"], columns=["과목명", "학점"])
                 st.table(df)
 
-        # ✅ 마지막에 외부 링크 추가
-        st.markdown("---")
-        st.markdown("📖 [마이크로디그리 과정표 보러가기](https://example.com/microdegree)")
+st.markdown("📖 [마이크로디그리 과정표 보러가기](https://docs.google.com/spreadsheets/d/1YA47-Sxiu7Yw7lzuBNxR3cMA0uVkwb-jxkxMHhFCBT4/edit?usp=sharing)")
 
