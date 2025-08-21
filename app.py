@@ -135,3 +135,5 @@ if st.button("추천 확인"):
                 st.write("추천 과목:")
                 for course, credit in info["추천과목"]:
                     st.write(f"- {course} ({credit}학점)")
+
+st.markdown("📖 [마이크로디그리 과정표 보기](https://docs.google.com/spreadsheets/d/1YA47-Sxiu7Yw7lzuBNxR3cMA0uVkwb-jxkxMHhFCBT4/edit?usp=sharing)")
