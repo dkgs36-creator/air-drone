@@ -94,7 +94,11 @@ def get_completed_track_matches(completed_courses):
 
 # === Streamlit UI ===
 st.title("✈️ 항공드론 트랙 추천 시스템")
-completed = st.text_area("25-1학기에 수강완료(F학점 제외)한 전체과목을 입력하세요 (과목구분은 쉼표, 띄어쓰기는 입력X 예:항공우주산업개론,AI프로그래밍)")
+completed = st.text_area("당신에게 적합한 항공드론 수준형 마이크로디그리를 추천해드립니다!\n
+25-1학기에 수강완료(F학점 제외)한 전체과목을 입력해주세요.\n
+입력시 과목구분은 쉼표로 입력! 과목명에 띄어쓰기가 있는 경우는 입력X! \n
+예:항공우주산업개론,AI프로그래밍,)\n
+추가로 필요한 수강학점이 적은 순으로 추천됩니다!")
 completed_list = [(c.strip(), 3) for c in completed.split(",") if c.strip()]
 
 if st.button("추천 확인"):
