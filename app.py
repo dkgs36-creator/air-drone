@@ -98,10 +98,10 @@ import streamlit as st
 
 st.markdown(
     """
-    <h5 style="color:darkblue;">당신에게 적합한 항공드론 수준형 마이크로디그리를 추천해드립니다!</h5>
-    <p style="font-size:15px; color:black;">
-    25-1학기에 수강완료(F학점 제외)한 전체과목을 입력해주세요.<br>
-    입력시 과목구분은 쉼표로 입력! 과목명에 띄어쓰기가 있는 경우는 입력X! <br>
+    <h3 style="color:darkblue;">당신에게 적합한 항공드론 수준형 마이크로디그리를 추천해드립니다!</h3>
+    <p style="font-size:18px; color:black;">
+    25-1학기에 수강완료(F학점 제외)한 전체과목을 입력해주세요.<br><br>
+    입력시 과목구분은 쉼표로 입력! 과목명에 띄어쓰기가 있는 경우는 입력X! <br><br>
     예: <span style="color:green;">항공우주산업개론,AI프로그래밍,</span><br><br>
     추가로 필요한 수강학점이 적은 순으로 추천됩니다!
     </p>
