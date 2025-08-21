@@ -137,7 +137,8 @@ if st.button("추천 확인"):
                 st.write(f"👉 추가 필요 학점: {info['필요학점']}")
 
                 df = pd.DataFrame(info["추천과목"], columns=["과목명", "학점"])
-                df = df.sort_values(by="과목명", ascending=True)  
+                df = df.sort_values(by="과목명", ascending=True).reset_index(drop=True) 
+                df.index += 1  
                 st.table(df)
 
 st.markdown("📖 [마이크로디그리 과정표 보러가기](https://docs.google.com/spreadsheets/d/1YA47-Sxiu7Yw7lzuBNxR3cMA0uVkwb-jxkxMHhFCBT4/edit?usp=sharing)")
