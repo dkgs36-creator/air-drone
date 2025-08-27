@@ -329,4 +329,4 @@ if st.button("추천 확인"):
                 df.index += 1
                 st.table(df)
 
-st.markdown("📖 마이크로디그리 로드맵 보기: [여기](https://docs.google.com/spreadsheets/d/1YA47-Sxiu7Yw7lzuBNxR3cMA0uVkwb-jxkxMHhFCBT4/edit?usp=sharing)")
+st.markdown("📖 마이크로디그리 로드맵 보기: [여기](https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626)")
