@@ -270,14 +270,14 @@ def get_completed_track_matches(completed_courses):
     return matches
 
 # === Streamlit UI ===
-st.title("✈️ 항공드론 MD 추천 시스템 — Pools까지 반영!")
+st.title("✈️ 항공드론 MD 추천 시스템")
 
 st.markdown(
     """
     <h3 style="font-size:22px; color:darkblue;">당신에게 적합한 항공드론 마이크로디그리를 추천드립니다!</h3>
     <p style="font-size:18px; color:black;">
     25‑1학기(여름학기 포함)에 수강한(F제외) 과목을 쉼표로 구분하여 입력해주세요.<br>
-    과목명은 풀네임으로! 로마자(I)는 숫자(1)로! 띄어쓰기는 X
+    과목명은 풀네임으로! 로마자(I)는 숫자(1)로! 띄어쓰기는 X<br>
     예시: 머신러닝입문,재료과학1 (O) / 머신러닝 입문,재료과학I (X)
     </p>
     <p style="font-size:16px; color:red;">
@@ -289,7 +289,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-completed = st.text_area("수강 과목 입력 (콤마 구분)")
+completed = st.text_area("25-1학기에 수강한 과목명을 입력하세요")
 
 completed_list = []
 for item in completed.split(","):
