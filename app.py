@@ -50,7 +50,7 @@ def calculate_earned_credits(track_info, completed_courses):
     for course, credit in track_info.get("required", []):
         if course in completed_names:
             total_credits += credit
-        elif: semester == TARGET_SEMESTER:
+        elif semester == TARGET_SEMESTER:
             recommended.append((course, credit))
 
     for group in track_info.get("or_groups", []):
@@ -63,7 +63,7 @@ def calculate_earned_credits(track_info, completed_courses):
         if not group_satisfied:
             available = [c for c in group if c[2] == TARGET_SEMESTER]
             if available:
-               recommended.append(group[0])
+              recommended.append(group[0])
 
     return total_credits, recommended
     
