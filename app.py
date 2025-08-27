@@ -240,8 +240,10 @@ def recommend_next_courses(completed_courses):
         elif "심화" in track or "특화" in track:
             needed = 9 - total_credits
         elif "전문" in track:
-            needed = 3 - total_credits
-        elif "마이크로디그리" in track:
+            needed = 9 - total_credits
+        elif "특화" in track:
+            needed = 9 - total_credits
+        elif "챌린저" in track:
             needed = 6 - total_credits
 
         if needed is not None and needed > 0:
