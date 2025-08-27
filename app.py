@@ -2,7 +2,6 @@
 import streamlit as st
 import pandas as pd
 
-# === 트랙별 과목 정보 ===
 track_courses = {
     "항공드론 초급": {
         "required": [
@@ -129,7 +128,7 @@ st.markdown(
     <h3 style="font-size:22px; color:darkblue;">당신에게 적합한 항공드론 마이크로디그리를 추천해드립니다!</h3>
     <p style="font-size:18px; color:black;">
     25-1학기(여름학기 포함)에 수강완료(F학점 제외)한 전체과목을 입력해주세요.<br>
-    입력시 과목명은 풀네임으로! 구분은 쉼표로 입력! 과목명에 띄어쓰기가 있는 경우는 입력X! <br>
+    과목명은 풀네임 입력! 구분은 쉼표로! 과목명에 띄어쓰기가 있는 경우는 입력X! <br>
     교과목에Ⅰ이 포함되어 있으면 아라비아 숫자 1로 입력!<br>
     예: <span style="color:green;">항공우주산업개론,AI프로그래밍,재료과학1 / 틀린예: 머신러닝 입문, 재료과학Ⅰ</span><br><br>
     <span style="color:red;">추가로 필요한 수강학점이 적은 순으로 추천됩니다!<br>
@@ -141,7 +140,6 @@ st.markdown(
 
 completed = st.text_area("여기에 과목을 입력하세요")
 
-# ✅ 입력 과목 실제 학점 반영
 completed_list = []
 for c in completed.split(","):
     c = c.strip()
@@ -159,7 +157,7 @@ if st.button("추천 확인"):
     else:
         matches = get_completed_track_matches(completed_list)
         if matches:
-            st.subheader
+            st.subheader("현재 이수한 과목")
             for track, matched_courses in matches.items():
                 st.write(f"- **{track}**: {', '.join(matched_courses)}")
 
