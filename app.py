@@ -238,6 +238,32 @@ def calculate_pool_credits_per_pool(pools, completed_courses):
 
     return pool_status, recommendations
 
+def calculate_earned_credits(track_info, completed_courses):
+    completed_names = {name for name, _ in completed_courses}
+    total_credits = 0
+    recommended = []
+
+    # Required courses
+    for course, credit, semesters in track_info.get("required", []):
+        if course in completed_names:
+            total_credits += credit
+        elif TARGET_SEMESTER in semesters:
+            recommended.append((course, credit))
+
+    # OR groups
+    for group in track_info.get("or_groups", []):
+        for course, credit, semesters in group:
+            if course in completed_names:
+                total_credits += credit
+                break
+        else:
+            # 추천 가능한 과목 찾기
+            available = [c for c in group if TARGET_SEMESTER in c[2]]
+            if available:
+                recommended.append((available[0][0], available[0][1]))
+
+    return total_credits, recommended
+
 def recommend_next_courses(completed_courses):
     recommendations = {}
     for track, info in track_courses.items():
