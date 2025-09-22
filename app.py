@@ -179,24 +179,28 @@ def build_course_info(track_courses):
 
 course_info = build_course_info(track_courses)
 
-def calculate_earned_credits(track_info, completed_courses):
+def calculate_pool_credits(pools, completed_courses):
     completed_names = {name for name, _ in completed_courses}
     total_credits = 0
     recommended = []
-    for course, credit, semesters in track_info.get("required", []):
-        if course in completed_names:
-            total_credits += credit
-        elif TARGET_SEMESTER in semesters:
-            recommended.append((course, credit))
-    for group in track_info.get("or_groups", []):
-        for course, credit, semesters in group:
-            if course in completed_names:
-                total_credits += credit
-                break
-        else:
-            available = [c for c in group if TARGET_SEMESTER in c[2]]
-            if available:
-                recommended.append((available[0][0], available[0][1]))
+
+    for pool_items in pools.values():
+        for item in pool_items:
+            if isinstance(item, tuple):
+                course, credit, semesters = item
+                if course in completed_names:
+                    total_credits += credit
+                elif TARGET_SEMESTER in semesters:
+                    recommended.append((course, credit))
+            else:  # or-group
+                for course, credit, semesters in item:
+                    if course in completed_names:
+                        total_credits += credit
+                        break
+                else:
+                    available = [c for c in item if TARGET_SEMESTER in c[2]]
+                    if available:
+                        recommended.append((available[0][0], available[0][1]))
     return total_credits, recommended
 
 def calculate_pool_credits_per_pool(pools, completed_courses):
@@ -321,23 +325,25 @@ if st.button("추천 확인"):
             st.subheader("✅ 현재 이수한 과목 (트랙별)")
             for t, cs in matches.items():
                 st.write(f"- **{t}**: {', '.join(cs)}")
+
         recs = recommend_next_courses(completed_list)
-if not recs:
-    st.write("축하합니다! 모든 마이크로디그리 조건을 만족했을 수 있습니다.")
-else:
-    st.subheader("📌 부족 학점 및 추천 과목")
-    for t, inf in recs.items():
-        st.markdown(f"### {t}")
-        if "필요학점" in inf:
-            st.write(f"▶ 추가 필요 학점: {inf['필요학점']}")
-            df = pd.DataFrame(inf["추천과목"], columns=["과목명", "학점"])
-            df.index += 1
-            st.table(df)
-        elif "Pool별 필요학점" in inf:
-            for pool_name, pool_info in inf["Pool별 필요학점"].items():
-                st.write(f"▶ **{pool_name}**: 추가 필요 학점 {pool_info['필요학점']}학점")
-                df = pd.DataFrame(pool_info["추천과목"], columns=["과목명", "학점"])
-                df.index += 1
-                st.table(df)
+
+        if not recs:
+            st.success("🎉 축하합니다! 모든 마이크로디그리 조건을 만족했을 수 있습니다.")
+        else:
+            st.subheader("📌 부족 학점 및 추천 과목")
+            for t, inf in recs.items():
+                st.markdown(f"### {t}")
+                if "필요학점" in inf:
+                    st.write(f"▶ 추가 필요 학점: {inf['필요학점']}학점")
+                    df = pd.DataFrame(inf["추천과목"], columns=["과목명", "학점"])
+                    df.index += 1
+                    st.table(df)
+                elif "Pool별 필요학점" in inf:
+                    for pool_name, pool_info in inf["Pool별 필요학점"].items():
+                        st.write(f"▶ **{pool_name}**: 추가 필요 학점 {pool_info['필요학점']}학점")
+                        df = pd.DataFrame(pool_info["추천과목"], columns=["과목명", "학점"])
+                        df.index += 1
+                        st.table(df)
 
 st.markdown("📖 마이크로디그리 로드맵 보기: [여기](https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626)")
