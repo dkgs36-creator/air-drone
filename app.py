@@ -324,7 +324,7 @@ st.title("✈️ 항공드론 MD 추천 시스템")
 
 st.markdown(
     """
-    <h3 style="font-size:22px; color:darkblue;">로드맵이 수정되었습니다! (25.09.22.)</h3> 
+    <h3 style="font-size:22px; color:darkblue;">로드맵 수정중입니다!</h3> 
     <p style="font-size:18px; color:black;">입력방법: 1) 교과목간 구분은 ,(쉼표)로 입력,<br>
     2) 교과목명은 정확하게 풀네임으로 작성<br>
     3) 교과목 뒤의 Ⅰ, Ⅱ 표기는 아라비아 숫자 1,2로 표기함<br>
