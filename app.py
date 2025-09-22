@@ -327,14 +327,14 @@ st.markdown(
     <h3 style="font-size:22px; color:darkblue;">로드맵이 수정되었습니다! (25.09.22.)</h3> 
     <p style="font-size:18px; color:black;">입력방법: 1) 교과목간 구분은 ,(쉼표)로 입력,<br>
     2) 교과목명은 정확하게 풀네임으로 작성<br>
-    3) 교과목 뒤의 Ⅰ, Ⅱ 표기는 아라비아 숫자로 표기함<br>
+    3) 교과목 뒤의 Ⅰ, Ⅱ 표기는 아라비아 숫자 1,2로 표기함<br>
     4) 띄어쓰기는 입력하지 않습니다.<br>
     <p style="font-size:18px; color:red;">*바른작성예: 회로이론2,드론테크노비즈니스개론,혁신융합세미나(항공드론)</p>   
     """,
     unsafe_allow_html=True
 )
 
-completed = st.text_area("25-1학기에 수강한 과목명을 입력하세요")
+completed = st.text_area("25년도에 수강한 과목명을 입력하세요")
 
 completed_list = []
 for item in completed.split(","):
@@ -376,7 +376,8 @@ if st.button("추천 확인"):
 
 st.markdown(
     """
-    이 프로그램은 참고용입니다. 반드시 로드맵에서 다시 확인해주세요!<br>
+    <p style="font-size:15px; color:red;">이 프로그램은 참고용으로 25년도 교육과정에만 해당됩니다.<br>
+    정확한 내용은 반드시 로드맵에서 확인해주세요!</p>
     📖 마이크로디그리 로드맵 보기: 
     <a href="https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626" target="_blank">여기</a>
     """,
