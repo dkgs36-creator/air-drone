@@ -374,5 +374,11 @@ if st.button("추천 확인"):
                         df.index += 1
                         st.table(df)
 
-st.markdown("이 프로그램은 참고용입니다. 반드시 로드맵에서 다시 확인해주세요!<br>
-📖 마이크로디그리 로드맵 보기: [여기](https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626)")
+st.markdown(
+    """
+    이 프로그램은 참고용입니다. 반드시 로드맵에서 다시 확인해주세요!<br>
+    📖 마이크로디그리 로드맵 보기: 
+    <a href="https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626" target="_blank">여기</a>
+    """,
+    unsafe_allow_html=True
+)
