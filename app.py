@@ -324,9 +324,12 @@ st.title("✈️ 항공드론 MD 추천 시스템")
 
 st.markdown(
     """
-    <h3 style="font-size:22px; color:darkblue;">로드맵 일부 수정 예정! 추후 다시 공지합니다~</h3>
-    <p style="font-size:18px; color:black;">
-        </p>
+    <h3 style="font-size:22px; color:darkblue;">로드맵이 수정되었습니다! (25.09.22.)</h3> 
+    <p style="font-size:18px; color:black;">입력방법: 교과목간 구분은 ,(쉼표)로 입력,<br>
+    교과목명은 정확하게 풀네임으로 작성<br>
+    교과목 뒤의 Ⅰ, Ⅱ 표기는 아라비아 숫자로 표기함<br>
+    띄어쓰기는 입력하지 않습니다.<br>
+    바른작성예: 회로이론2,드론테크노비즈니스개론,혁신융합세미나(항공드론)</p>   
     """,
     unsafe_allow_html=True
 )
@@ -371,4 +374,5 @@ if st.button("추천 확인"):
                         df.index += 1
                         st.table(df)
 
-st.markdown("📖 마이크로디그리 로드맵 보기: [여기](https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626)")
+st.markdown("이 프로그램은 참고용입니다. 반드시 로드맵에서 다시 확인해주세요!<br>
+📖 마이크로디그리 로드맵 보기: [여기](https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626)")
