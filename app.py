@@ -394,7 +394,9 @@ st.markdown(
     <p style="font-size:15px; color:red;">이 프로그램은 참고용으로 25년도 교육과정에만 해당됩니다.<br>
     정확한 내용은 반드시 로드맵에서 확인해주세요!</p>
     📖 마이크로디그리 로드맵 보기: 
-    <a href="https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626" target="_blank">여기</a>
+    <a href="https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626" target="_blank">여기</a><br>
+    📖 마이크로디그리 신청하기: 
+    <a href="https://forms.gle/yNhWM1f1nYe778t18" target="_blank">여기</a>
     """,
     unsafe_allow_html=True
 )
