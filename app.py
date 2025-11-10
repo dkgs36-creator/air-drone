@@ -355,12 +355,12 @@ if st.button("추천 확인"):
                 df.index += 1
                 st.table(df)
 
-        elif "Pool별 필요학점" in inf:
-            for pool_name, pool_info in inf["Pool별 필요학점"].items():
-                st.write(f"▶ **{pool_name}**: 추가 필요 학점 {pool_info['필요학점']}학점")
-                df = pd.DataFrame(sorted(pool_info["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
-                df.index += 1
-                st.table(df)
+            elif "Pool별 필요학점" in inf:
+                for pool_name, pool_info in inf["Pool별 필요학점"].items():
+                    st.write(f"▶ **{pool_name}**: 추가 필요 학점 {pool_info['필요학점']}학점")
+                    df = pd.DataFrame(sorted(pool_info["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
+                    df.index += 1
+                    st.table(df)
 
 st.markdown(
     """
