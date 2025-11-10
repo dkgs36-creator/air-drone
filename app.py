@@ -293,7 +293,7 @@ st.title("✈️ 항공드론 MD 이수 확인 시스템")
 
 st.markdown(
     """
-    <h3 style="font-size:22px; color:darkblue;">로드맵 버전(2025.09.25.)</h3> 
+    <h3 style="font-size:22px; color:darkblue;">로드맵 버전(2025.10.31.)</h3> 
     <p style="font-size:18px; color:black;">!입력방법!<br>
     1) 교과목간 구분은 ,(쉼표)로 입력<br>
     2) 교과목명은 정확하게 풀네임으로 작성<br>
