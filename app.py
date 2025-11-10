@@ -238,6 +238,16 @@ def recommend_next_courses(completed_courses):
     for track, info in track_courses.items():
         is_special = "특화" in track or "챌린저" in track or "파일럿" in track
 
+        must_pass_courses = info.get("must_pass", [])
+        missing_must = [c for c in must_pass_courses if c not in {n for n, _ in completed_courses}]
+        if missing_must:
+            recommendations[track] = {
+                "필요학점": 9,  # 전체 필요 학점 계산 유지
+                "추천과목": [(c, course_info.get(c, (3, []))[0]) for c in missing_must],
+                "메시지": f"⚠️ '{', '.join(missing_must)}' 과목은 반드시 이수해야 합니다."
+            }
+            continue
+
         if is_special:
             pool_status, pool_recommendations = calculate_pool_credits_per_pool(info["pools"], completed_courses)
             if pool_recommendations:
@@ -268,16 +278,7 @@ def recommend_next_courses(completed_courses):
                     "필요학점": needed,
                     "추천과목": recommended
                 }
-        
-    must_pass_courses = info.get("must_pass", [])
-    missing_must = [c for c in must_pass_courses if c not in {n for n, _ in completed_courses}]
-    if missing_must:
-        recommendations[track] = {
-            "필요학점": 9,  # 전체 필요 학점 계산 유지
-            "추천과목": [(c, course_info.get(c, (3, []))[0]) for c in missing_must],
-            "메시지": f"⚠️ '{', '.join(missing_must)}' 과목은 반드시 이수해야 합니다."
-        }
-        continue
+
     return recommendations
 
 def get_completed_track_matches(completed_courses):
