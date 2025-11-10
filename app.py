@@ -243,12 +243,15 @@ def recommend_next_courses(completed_courses):
         must_message = None
         if missing_must:
             must_message = f"⚠️ 반드시 이수해야 하는 과목 미이수: {', '.join(missing_must)}"
+
         if is_special:
             pool_status, pool_recommendations = calculate_pool_credits_per_pool(info["pools"], completed_courses)
             if pool_recommendations:
-                recommendations[track] = {
-                    "Pool별 필요학점": pool_recommendations
-                }
+                rec_info = {"Pool별 필요학점": pool_recommendations}
+                if must_message:
+                    rec_info["메시지"] = must_message
+                recommendations[track] = rec_info
+
         else:
             total_credits = 0
             recommended = []
@@ -269,10 +272,13 @@ def recommend_next_courses(completed_courses):
                 needed = 9 - total_credits
 
             if needed is not None and needed > 0:
-                recommendations[track] = {
+                rec_info = {
                     "필요학점": needed,
                     "추천과목": recommended
                 }
+                if must_message:
+                    rec_info["메시지"] = must_message
+                recommendations[track] = rec_info
 
     return recommendations
 
@@ -338,19 +344,23 @@ if st.button("추천 확인"):
             st.subheader("📌 부족 학점 및 추천 과목")
             sorted_recs = sorted(recs.items(), key=lambda x: x[1].get("필요학점", 99) 
                                  if "필요학점" in x[1] else min([v["필요학점"] for v in x[1]["Pool별 필요학점"].values()], default=99))
-            for t, inf in recs.items():
-                st.markdown(f"### {t}")
-                if "필요학점" in inf:
-                    st.write(f"▶ 추가 필요 학점: {inf['필요학점']}학점")
-                    df = pd.DataFrame(sorted(inf["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
-                    df.index += 1
-                    st.table(df)
-                elif "Pool별 필요학점" in inf:
-                    for pool_name, pool_info in inf["Pool별 필요학점"].items():
-                        st.write(f"▶ **{pool_name}**: 추가 필요 학점 {pool_info['필요학점']}학점")
-                        df = pd.DataFrame(sorted(pool_info["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
-                        df.index += 1
-                        st.table(df)
+        for t, inf in recs.items():
+            st.markdown(f"### {t}")
+            if "메시지" in inf:
+                st.warning(inf["메시지"])
+
+            if "필요학점" in inf:
+                st.write(f"▶ 추가 필요 학점: {inf['필요학점']}학점")
+                df = pd.DataFrame(sorted(inf["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
+                df.index += 1
+                st.table(df)
+
+        elif "Pool별 필요학점" in inf:
+            for pool_name, pool_info in inf["Pool별 필요학점"].items():
+                st.write(f"▶ **{pool_name}**: 추가 필요 학점 {pool_info['필요학점']}학점")
+                df = pd.DataFrame(sorted(pool_info["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
+                df.index += 1
+                st.table(df)
 
 st.markdown(
     """
