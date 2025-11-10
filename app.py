@@ -55,6 +55,7 @@ track_courses = {
             ("항공ICT공학", 3, ["25-1"]),
             ("항공드론CapstoneDesign1", 3, ["25-2"])
         ],
+        "must_pass": ["항공드론CapstoneDesign1"],
         "or_groups": [
             [("복합재료", 3, ["25-1"]), ("반도체소재개론", 3, ["25-1"])]
         ],
