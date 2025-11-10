@@ -289,7 +289,7 @@ def get_completed_track_matches(completed_courses):
     return matches
 
 # === Streamlit UI ===
-st.title("✈️ 항공드론 MD 추천 시스템")
+st.title("✈️ 항공드론 MD 이수 확인 시스템")
 
 st.markdown(
     """
