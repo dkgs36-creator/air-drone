@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
 
+# === 기본 설정 ===
 TARGET_SEMESTER = "25-2"
 
+# === 트랙 데이터 ===
 track_courses = {
     "항공드론 초급": {
         "required": [
@@ -41,9 +43,7 @@ track_courses = {
         ],
         "or_groups": [
             [("재료역학1", 3, ["25-1"]), ("기초역학", 3, ["25-1"])],
-            [("제어공학응용", 3, ["25-2"]),
-             ("제어시스템설계", 3, ["25-1"]),
-             ("자동제어", 3, ["25-1"])],
+            [("제어공학응용", 3, ["25-2"]), ("제어시스템설계", 3, ["25-1"]), ("자동제어", 3, ["25-1"])],
             [("전기전자공학", 3, ["25-1"]), ("전기전자개론및실습", 3, ["25-1"])]
         ],
         "pools": {}
@@ -72,9 +72,7 @@ track_courses = {
                 ("항공드론창의설계", 3, ["25-2"]),
                 ("비행원리및모의조종실습", 1, ["25-2"])
             ],
-            "Pool B": [
-                ("전산응용제도", 3, ["25-1"])
-            ],
+            "Pool B": [("전산응용제도", 3, ["25-1"])],
             "Pool C": [
                 [("기초역학", 3, ["25-1"]), ("재료역학1", 3, ["25-1"])],
                 ("항공드론동역학", 3, ["25-2"]),
@@ -95,13 +93,9 @@ track_courses = {
                 ("항공기기체시스템", 3, ["25-1"]),
                 ("전산응용제도", 3, ["25-1"])
             ],
-            "Pool B": [
-                ("항공우주구조역학", 3, ["25-1"])
-            ],
+            "Pool B": [("항공우주구조역학", 3, ["25-1"])],
             "Pool C": [
-               [("제어시스템설계", 3, ["25-1"]),
-                ("자동제어", 3, ["25-1"]),
-                ("제어공학응용", 3, ["25-2"])],
+               [("제어시스템설계", 3, ["25-1"]), ("자동제어", 3, ["25-1"]), ("제어공학응용", 3, ["25-2"])],
                 ("항공ICT공학", 3, ["25-1"]),
                 ("지능센서공학", 3, ["25-2"])
             ]
@@ -121,180 +115,114 @@ track_courses = {
                 ("머신러닝입문", 3, ["25-1"]),
                 ("항공기기체시스템", 3, ["25-1"])
             ],
-            "Pool C": [
-                ("항공/드론/AI관련 경진대회 출전(비교과)", 0, ["25-2"])
-            ]
+            "Pool C": [("항공/드론/AI관련 경진대회 출전(비교과)", 0, ["25-2"])]
         }
     },
 }
 
-def build_course_info(track_courses):
-    course_info = {}
-    for info in track_courses.values():
-        for course, credit, semesters in info.get("required", []):
-            course_info[course] = (credit, semesters)
-        for group in info.get("or_groups", []):
-            for course, credit, semesters in group:
-                course_info[course] = (credit, semesters)
-        for pools in info.get("pools", {}).values():
+# === 공통 유틸 ===
+def build_course_info(data):
+    info = {}
+    for track in data.values():
+        for key in ["required", "or_groups"]:
+            for item in track.get(key, []):
+                if isinstance(item, tuple):
+                    course, credit, sems = item
+                    info[course] = (credit, sems)
+                else:
+                    for c, cr, s in item:
+                        info[c] = (cr, s)
+        for pools in track.get("pools", {}).values():
             for item in pools:
                 if isinstance(item, tuple):
-                    course, credit, semesters = item
-                    course_info[course] = (credit, semesters)
+                    c, cr, s = item
+                    info[c] = (cr, s)
                 else:
-                    for course, credit, semesters in item:
-                        course_info[course] = (credit, semesters)
-    return course_info
+                    for c, cr, s in item:
+                        info[c] = (cr, s)
+    return info
 
 course_info = build_course_info(track_courses)
 
-def calculate_pool_credits(pools, completed_courses):
-    completed_names = {name for name, _ in completed_courses}
-    total_credits = 0
-    recommended = []
+# === 계산 함수 ===
+def evaluate_courses(items, completed):
+    total, rec = 0, []
+    for entry in items:
+        if isinstance(entry, tuple):
+            name, credit, sems = entry
+            if name in completed:
+                total += credit
+            elif TARGET_SEMESTER in sems:
+                rec.append((name, credit))
+        else:
+            for n, c, s in entry:
+                if n in completed:
+                    total += c
+                    break
+            else:
+                avail = [c for c in entry if TARGET_SEMESTER in c[2]]
+                if avail:
+                    rec.append((avail[0][0], avail[0][1]))
+    return total, rec
 
-    for pool_items in pools.values():
-        for item in pool_items:
-            if isinstance(item, tuple):
-                course, credit, semesters = item
-                if course in completed_names:
-                    total_credits += credit
-                elif TARGET_SEMESTER in semesters:
-                    recommended.append((course, credit))
-            else:  # or-group
-                for course, credit, semesters in item:
-                    if course in completed_names:
-                        total_credits += credit
-                        break
-                else:
-                    available = [c for c in item if TARGET_SEMESTER in c[2]]
-                    if available:
-                        recommended.append((available[0][0], available[0][1]))
-    return total_credits, recommended
-
-def calculate_pool_credits_per_pool(pools, completed_courses):
-    completed_names = {name for name, _ in completed_courses}
-    pool_status = {}
-    recommendations = {}
-
+def evaluate_pools(pools, completed):
+    pool_status, recommendations = {}, {}
     for pool_name, pool_items in pools.items():
-        pool_credit = 0
-        pool_recommend = []
-
-        for item in pool_items:
-            if isinstance(item, tuple):
-                course, credit, semesters = item
-                if course in completed_names:
-                    pool_credit += credit
-                elif TARGET_SEMESTER in semesters:
-                    pool_recommend.append((course, credit))
-            else:  # or-group
-                for course, credit, semesters in item:
-                    if course in completed_names:
-                        pool_credit += credit
-                        break
-                else:
-                    available = [c for c in item if TARGET_SEMESTER in c[2]]
-                    if available:
-                        pool_recommend.append((available[0][0], available[0][1]))
-
-        pool_status[pool_name] = pool_credit
-        if pool_credit < 3:
+        earned, rec = evaluate_courses(pool_items, completed)
+        pool_status[pool_name] = earned
+        if earned < 3:
             recommendations[pool_name] = {
-                "필요학점": 3 - pool_credit,
-                "추천과목": pool_recommend
+                "필요학점": 3 - earned,
+                "추천과목": rec
             }
-
     return pool_status, recommendations
 
-def calculate_earned_credits(track_info, completed_courses):
-    completed_names = {name for name, _ in completed_courses}
-    total_credits = 0
-    recommended = []
-
-    # Required courses
-    for course, credit, semesters in track_info.get("required", []):
-        if course in completed_names:
-            total_credits += credit
-        elif TARGET_SEMESTER in semesters:
-            recommended.append((course, credit))
-
-    # OR groups
-    for group in track_info.get("or_groups", []):
-        for course, credit, semesters in group:
-            if course in completed_names:
-                total_credits += credit
-                break
-        else:
-            # 추천 가능한 과목 찾기
-            available = [c for c in group if TARGET_SEMESTER in c[2]]
-            if available:
-                recommended.append((available[0][0], available[0][1]))
-
-    return total_credits, recommended
-
 def recommend_next_courses(completed_courses):
-    recommendations = {}
+    completed_names = {n for n, _ in completed_courses}
+    recs = {}
     for track, info in track_courses.items():
-        is_special = "특화" in track or "챌린저" in track or "파일럿" in track
-
-        must_pass_courses = info.get("must_pass", [])
-        missing_must = [c for c in must_pass_courses if c not in {n for n, _ in completed_courses}]
-        must_message = None
-        if missing_must:
-            must_message = f"⚠️ 반드시 이수해야 하는 과목 미이수: {', '.join(missing_must)}"
+        is_special = "특화" in track or "챌린저" in track
+        must_pass = info.get("must_pass", [])
+        missing_must = [m for m in must_pass if m not in completed_names]
+        must_msg = f"⚠️ 필수 과목 미이수: {', '.join(missing_must)}" if missing_must else None
 
         if is_special:
-            pool_status, pool_recommendations = calculate_pool_credits_per_pool(info["pools"], completed_courses)
-            if pool_recommendations:
-                rec_info = {"Pool별 필요학점": pool_recommendations}
-                if must_message:
-                    rec_info["메시지"] = must_message
-                recommendations[track] = rec_info
-
+            pool_stat, pool_rec = evaluate_pools(info["pools"], completed_names)
+            if pool_rec:
+                recs[track] = {"Pool별 필요학점": pool_rec, "메시지": must_msg}
         else:
-            total_credits = 0
-            recommended = []
-
-            rc, rr = calculate_earned_credits(info, completed_courses)
-            total_credits += rc
-            recommended.extend(rr)
-
+            earned, rec = evaluate_courses(info.get("required", []), completed_names)
+            or_earned, or_rec = evaluate_courses(info.get("or_groups", []), completed_names)
+            total = earned + or_earned
+            rec.extend(or_rec)
             if info.get("pools"):
-                pc, pr = calculate_pool_credits(info["pools"], completed_courses)
-                total_credits += pc
-                recommended.extend(pr)
+                p_total, p_rec = evaluate_courses(info["pools"].values(), completed_names)
+                total += p_total
+                rec.extend(p_rec)
+            need = 6 if "초급" in track else 9
+            if total < need:
+                recs[track] = {"필요학점": need - total, "추천과목": rec, "메시지": must_msg}
+    return recs
 
-            needed = None
-            if "초급" in track:
-                needed = 6 - total_credits
-            elif "심화" in track or "전문" in track:
-                needed = 9 - total_credits
-
-            if needed is not None and needed > 0:
-                rec_info = {
-                    "필요학점": needed,
-                    "추천과목": recommended
-                }
-                if must_message:
-                    rec_info["메시지"] = must_message
-                recommendations[track] = rec_info
-
-    return recommendations
-
-def get_completed_track_matches(completed_courses):
-    completed_names = {name for name, _ in completed_courses}
+def get_completed_matches(completed_courses):
+    completed_names = {n for n, _ in completed_courses}
     matches = {}
     for track, info in track_courses.items():
-        all_courses = {c for c, _, _ in info.get("required", [])}
-        for group in info.get("or_groups", []):
-            all_courses |= {c for c, _, _ in group}
+        all_courses = set()
+        for section in ["required", "or_groups"]:
+            for item in info.get(section, []):
+                if isinstance(item, tuple):
+                    all_courses.add(item[0])
+                else:
+                    for c, _, _ in item:
+                        all_courses.add(c)
         for pools in info.get("pools", {}).values():
             for item in pools:
                 if isinstance(item, tuple):
                     all_courses.add(item[0])
                 else:
-                    all_courses |= {c for c, _, _ in item}
+                    for c, _, _ in item:
+                        all_courses.add(c)
         matched = all_courses & completed_names
         if matched:
             matches[track] = sorted(matched)
@@ -302,74 +230,58 @@ def get_completed_track_matches(completed_courses):
 
 # === Streamlit UI ===
 st.title("✈️ 항공드론 MD 이수 확인 시스템")
-
 st.markdown(
     """
-    <h3 style="font-size:22px; color:darkblue;">로드맵 버전(2025.10.31.)</h3> 
-    <p style="font-size:18px; color:black;">!입력방법!<br>
-    1) 교과목간 구분은 ,(쉼표)로 입력<br>
-    2) 교과목명은 정확하게 풀네임으로 작성<br>
-    3) 교과목 뒤의 Ⅰ, Ⅱ 표기는 아라비아 숫자 1,2로 표기함<br>
-    4) 띄어쓰기는 입력하지 않습니다.<br>
-    <p style="font-size:18px; color:red;">*바른작성예: 회로이론2,혁신융합세미나(항공드론), 항공드론CapstoneDesign1</p>   
-    """,
-    unsafe_allow_html=True
+    <h4>로드맵 버전 (2025.10.31.)</h4>
+    <p>교과목은 쉼표(,)로 구분해 입력해주세요.<br>
+    예: 회로이론2,항공드론CapstoneDesign1,드론테크노비즈니스개론</p>
+    """, unsafe_allow_html=True
 )
 
-completed = st.text_area("25년도에 수강한 과목명을 입력하세요")
+completed = st.text_area("이수한 과목을 입력하세요:")
 
-completed_list = []
-for item in completed.split(","):
-    name = item.strip()
-    if not name:
-        continue
-    credit, semesters = course_info.get(name, (3, []))
-    completed_list.append((name, credit))
+completed_list = [(n.strip(), course_info.get(n.strip(), (3, []))[0])
+                  for n in completed.split(",") if n.strip()]
 
 if st.button("추천 확인"):
     if not completed_list:
-        st.write("❗ 과목을 입력해주세요.")
+        st.warning("과목을 입력해주세요.")
     else:
-        matches = get_completed_track_matches(completed_list)
+        matches = get_completed_matches(completed_list)
         if matches:
-            st.subheader("✅ 현재 이수한 과목 (트랙별)")
+            st.subheader("✅ 현재 이수 과목 (트랙별)")
             for t, cs in matches.items():
                 st.write(f"- **{t}**: {', '.join(cs)}")
 
         recs = recommend_next_courses(completed_list)
-
         if not recs:
-            st.success("🎉 축하합니다! 모든 마이크로디그리 조건을 만족했을 수 있습니다.")
+            st.success("🎉 모든 마이크로디그리 조건을 충족했습니다!")
         else:
             st.subheader("📌 부족 학점 및 추천 과목")
-            sorted_recs = sorted(recs.items(), key=lambda x: x[1].get("필요학점", 99) 
-                                 if "필요학점" in x[1] else min([v["필요학점"] for v in x[1]["Pool별 필요학점"].values()], default=99))
-        for t, inf in recs.items():
-            st.markdown(f"### {t}")
-            if "메시지" in inf:
-                st.warning(inf["메시지"])
+            for t, inf in recs.items():
+                st.markdown(f"### {t}")
+                if inf.get("메시지"):
+                    st.warning(inf["메시지"])
 
-            if "필요학점" in inf:
-                st.write(f"▶ 추가 필요 학점: {inf['필요학점']}학점")
-                df = pd.DataFrame(sorted(inf["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
-                df.index += 1
-                st.table(df)
-
-            elif "Pool별 필요학점" in inf:
-                for pool_name, pool_info in inf["Pool별 필요학점"].items():
-                    st.write(f"▶ **{pool_name}**: 추가 필요 학점 {pool_info['필요학점']}학점")
-                    df = pd.DataFrame(sorted(pool_info["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
+                if "필요학점" in inf:
+                    st.write(f"▶ 추가 필요 학점: **{inf['필요학점']}학점**")
+                    df = pd.DataFrame(sorted(inf["추천과목"], key=lambda x: x[0]),
+                                      columns=["과목명", "학점"])
                     df.index += 1
                     st.table(df)
+                elif "Pool별 필요학점" in inf:
+                    for pool_name, pool_data in inf["Pool별 필요학점"].items():
+                        st.write(f"▶ **{pool_name}**: 추가 필요 학점 {pool_data['필요학점']}학점")
+                        df = pd.DataFrame(sorted(pool_data["추천과목"], key=lambda x: x[0]),
+                                          columns=["과목명", "학점"])
+                        df.index += 1
+                        st.table(df)
 
 st.markdown(
     """
-    <p style="font-size:15px; color:red;">이 프로그램은 참고용으로 25년도 교육과정에만 해당됩니다.<br>
-    정확한 내용은 반드시 로드맵에서 확인해주세요!</p>
-    📖 마이크로디그리 로드맵 보기: 
-    <a href="https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626" target="_blank">여기</a><br>
-    📖 마이크로디그리 신청하기: 
-    <a href="https://forms.gle/yNhWM1f1nYe778t18" target="_blank">여기</a>
-    """,
-    unsafe_allow_html=True
+    <hr>
+    <p style="font-size:14px; color:red;">이 프로그램은 2025년도 로드맵 기준 참고용입니다.<br>
+    📖 <a href="https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626" target="_blank">마이크로디그리 로드맵 보기</a><br>
+    📝 <a href="https://forms.gle/yNhWM1f1nYe778t18" target="_blank">마이크로디그리 신청하기</a></p>
+    """, unsafe_allow_html=True
 )
