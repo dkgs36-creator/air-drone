@@ -179,7 +179,6 @@ def recommend_next_courses(completed_courses):
 
         needed = required - total_credits
 
-        # ✅ 이수 완료 여부 표시 추가
         if needed <= 0:
             rec_info = {"이수완료": True, "총이수학점": total_credits}
             if must_message:
@@ -292,6 +291,7 @@ if st.button("추천 확인"):
 
         st.markdown("## 📊 마이크로디그리 이수 진척도 요약")
         df_summary = pd.DataFrame(progress_summary, columns=["트랙", "이수 학점", "필요 학점", "진척도", "상태"])
+        df_summary.index = range(1, len(df_summary) + 1)
         st.table(df_summary)
 
         st.markdown("---")
