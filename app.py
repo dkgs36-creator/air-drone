@@ -76,69 +76,6 @@ track_courses = {
         ],
         "pools": {}
     },
-    "항공드론 특화 기초과정": {
-        "required": [],
-        "or_groups": [],
-        "pools": {
-            "Pool A": [
-                ("항공우주학개론", 2, ["25-1", "25-2"]),
-                ("항공우주산업개론", 2, ["25-1", "25-2"]),
-                ("드론테크노비즈니스개론", 3, ["25-2"]),
-                ("항공드론창의설계", 3, ["25-2"]),
-                ("비행원리및모의조종실습", 1, ["25-2"])
-            ],
-            "Pool B": [
-                ("전산응용제도", 3, ["25-1"])
-            ],
-            "Pool C": [
-                [("기초역학", 3, ["25-1"]), ("재료역학1", 3, ["25-1"])],
-                ("항공드론동역학", 3, ["25-2"]),
-                ("항공기기체시스템", 3, ["25-1"]),
-                ("머신러닝입문", 3, ["25-1"]),
-                [("전기전자개론및실습", 3, ["25-1"]), ("전기전자공학", 3, ["25-1"])],
-                ("항행안전시설및공중항법", 3, ["25-1"])
-            ]
-        }
-    },
-    "드론 설계 특화 전문과정 (항공드론 특화 기초과정 이수 후 이수 가능)": {
-        "required": [],
-        "or_groups": [],
-        "pools": {
-            "Pool A": [
-                [("재료역학1", 3, ["25-1"]), ("기초역학", 3, ["25-1"])],
-                ("항공드론동역학", 3, ["25-2"]),
-                ("항공기기체시스템", 3, ["25-1"]),
-                ("전산응용제도", 3, ["25-1"])
-            ],
-            "Pool B": [
-                ("항공우주구조역학", 3, ["25-1"])
-            ],
-            "Pool C": [
-                [("제어시스템설계", 3, ["25-1"]), ("자동제어", 3, ["25-1"]), ("제어공학응용", 3, ["25-2"])],
-                ("항공ICT공학", 3, ["25-1"]),
-                ("지능센서공학", 3, ["25-2"])
-            ]
-        }
-    },
-    "항공드론 챌린저 마이크로디그리": {
-        "required": [],
-        "or_groups": [],
-        "pools": {
-            "Pool A": [
-                ("전산응용제도", 3, ["25-1"]),
-                ("드론테크노비즈니스개론", 3, ["25-2"])
-            ],
-            "Pool B": [
-                [("기초역학", 3, ["25-1"]), ("재료역학1", 3, ["25-1"])],
-                ("항공드론동역학", 3, ["25-2"]),
-                ("머신러닝입문", 3, ["25-1"]),
-                ("항공기기체시스템", 3, ["25-1"])
-            ],
-            "Pool C": [
-                ("항공/드론/AI관련 경진대회 출전(비교과)", 0, ["25-2"])
-            ]
-        }
-    },
 }
 
 def build_course_info(track_courses):
@@ -151,8 +88,7 @@ def build_course_info(track_courses):
     for info in track_courses.values():
         for item in info.get("required", []):
             if isinstance(item, tuple):
-                course, credit, semesters = item
-                add_course(course, credit, semesters)
+                add_course(*item)
             elif isinstance(item, list):
                 for course, credit, semesters in item:
                     add_course(course, credit, semesters)
@@ -165,13 +101,13 @@ def build_course_info(track_courses):
         for pools in info.get("pools", {}).values():
             for item in pools:
                 if isinstance(item, tuple):
-                    course, credit, semesters = item
-                    add_course(course, credit, semesters)
+                    add_course(*item)
                 elif isinstance(item, list):
                     for course, credit, semesters in item:
                         add_course(course, credit, semesters)
 
     return course_info
+
 
 course_info = build_course_info(track_courses)
 
@@ -180,7 +116,6 @@ def calculate_earned_credits(track_info, completed_courses):
     total_credits = 0
     recommended = []
 
-    # Required courses
     for item in track_info.get("required", []):
         if isinstance(item, tuple):
             course, credit, semesters = item
@@ -191,7 +126,6 @@ def calculate_earned_credits(track_info, completed_courses):
                 if any(s in semesters for s in ["25-1", TARGET_SEMESTER, FUTURE_SEMESTER]):
                     recommended.append((f"{course} {label}".strip(), credit))
         elif isinstance(item, list):
-            # OR형식의 하위 리스트 처리
             taken = False
             for course, credit, semesters in item:
                 if course in completed_names:
@@ -205,7 +139,6 @@ def calculate_earned_credits(track_info, completed_courses):
                     label = "(26년도 예정)" if FUTURE_SEMESTER in semesters else ""
                     recommended.append((f"{c} {label}".strip(), credit))
 
-    # OR groups
     for group in track_info.get("or_groups", []):
         if isinstance(group, list):
             taken = False
@@ -223,23 +156,19 @@ def calculate_earned_credits(track_info, completed_courses):
 
     return total_credits, recommended
 
+
 def recommend_next_courses(completed_courses):
     recommendations = {}
     for track, info in track_courses.items():
-        is_special = "특화" in track or "챌린저" in track or "파일럿" in track
-
         must_pass_courses = info.get("must_pass", [])
         missing_must = [c for c in must_pass_courses if c not in {n for n, _ in completed_courses}]
         must_message = None
         if missing_must:
             must_message = f"⚠️ 반드시 이수해야 하는 과목 미이수: {', '.join(missing_must)}"
 
-        total_credits = 0
-        recommended = []
-
         rc, rr = calculate_earned_credits(info, completed_courses)
-        total_credits += rc
-        recommended.extend(rr)
+        total_credits = rc
+        recommended = rr
 
         needed = None
         if "초급" in track:
@@ -248,10 +177,7 @@ def recommend_next_courses(completed_courses):
             needed = 9 - total_credits
 
         if needed is not None and needed > 0:
-            rec_info = {
-                "필요학점": needed,
-                "추천과목": recommended
-            }
+            rec_info = {"필요학점": needed, "추천과목": recommended}
             if must_message:
                 rec_info["메시지"] = must_message
             recommendations[track] = rec_info
@@ -261,13 +187,39 @@ def recommend_next_courses(completed_courses):
 def get_completed_track_matches(completed_courses):
     completed_names = {name for name, _ in completed_courses}
     matches = {}
+
     for track, info in track_courses.items():
-        all_courses = {c for c, _, _ in info.get("required", [])}
+        all_courses = set()
+
+        for item in info.get("required", []):
+            if isinstance(item, tuple):
+                c, _, _ = item
+                all_courses.add(c)
+            elif isinstance(item, list):
+                for c, _, _ in item:
+                    all_courses.add(c)
+
         for group in info.get("or_groups", []):
-            all_courses |= {c for c, _, _ in group}
+            if isinstance(group, list):
+                for c, _, _ in group:
+                    all_courses.add(c)
+            elif isinstance(group, tuple):
+                c, _, _ = group
+                all_courses.add(c)
+
+        for pool in info.get("pools", {}).values():
+            for item in pool:
+                if isinstance(item, tuple):
+                    c, _, _ = item
+                    all_courses.add(c)
+                elif isinstance(item, list):
+                    for c, _, _ in item:
+                        all_courses.add(c)
+
         matched = all_courses & completed_names
         if matched:
             matches[track] = sorted(matched)
+
     return matches
 
 st.title("✈️ 항공드론 MD 이수 확인 시스템")
@@ -280,7 +232,7 @@ st.markdown(
     2) 교과목명은 정확하게 풀네임으로 작성<br>
     3) 교과목 뒤의 Ⅰ, Ⅱ 표기는 아라비아 숫자 1,2로 표기함<br>
     4) 띄어쓰기는 입력하지 않습니다.<br>
-    <p style="font-size:18px; color:red;">*바른작성예: 회로이론2,혁신융합세미나(항공드론), 항공드론CapstoneDesign1</p>   
+    <p style="font-size:18px; color:red;">*바른작성예: 회로이론2,혁신융합세미나(항공드론),항공드론CapstoneDesign1</p>   
     """,
     unsafe_allow_html=True
 )
@@ -297,7 +249,7 @@ for item in completed.split(","):
 
 if st.button("추천 확인"):
     if not completed_list:
-        st.write("❗ 과목을 입력해주세요.")
+        st.warning("❗ 과목을 입력해주세요.")
     else:
         matches = get_completed_track_matches(completed_list)
         if matches:
@@ -324,8 +276,10 @@ if st.button("추천 확인"):
 
 st.markdown(
     """
-    <p style="font-size:15px; color:red;">이 프로그램은 참고용으로 25년도 교육과정에만 해당되며 26년도 교과목은 미확정상태입니다.<br>
-    정확한 내용은 반드시 로드맵에서 확인해주세요!</p>
+    <p style="font-size:15px; color:red;">
+    이 프로그램은 참고용으로 25년도 교육과정에만 해당되며 26년도 교과목은 미확정 상태입니다.<br>
+    정확한 내용은 반드시 공식 로드맵에서 확인해주세요!
+    </p>
     📖 마이크로디그리 로드맵 보기: 
     <a href="https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626" target="_blank">여기</a><br>
     📖 마이크로디그리 신청하기: 
