@@ -143,20 +143,34 @@ track_courses = {
 
 def build_course_info(track_courses):
     course_info = {}
-    for info in track_courses.values():
-        for course, credit, semesters in info.get("required", []):
+
+    def add_course(course, credit, semesters):
+        if course not in course_info:
             course_info[course] = (credit, semesters)
+
+    for info in track_courses.values():
+        for item in info.get("required", []):
+            if isinstance(item, tuple):
+                course, credit, semesters = item
+                add_course(course, credit, semesters)
+            elif isinstance(item, list):
+                for course, credit, semesters in item:
+                    add_course(course, credit, semesters)
+
         for group in info.get("or_groups", []):
-            for course, credit, semesters in group:
-                course_info[course] = (credit, semesters)
+            if isinstance(group, list):
+                for course, credit, semesters in group:
+                    add_course(course, credit, semesters)
+
         for pools in info.get("pools", {}).values():
             for item in pools:
                 if isinstance(item, tuple):
                     course, credit, semesters = item
-                    course_info[course] = (credit, semesters)
-                else:
+                    add_course(course, credit, semesters)
+                elif isinstance(item, list):
                     for course, credit, semesters in item:
-                        course_info[course] = (credit, semesters)
+                        add_course(course, credit, semesters)
+
     return course_info
 
 course_info = build_course_info(track_courses)
