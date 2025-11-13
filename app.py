@@ -181,26 +181,45 @@ def calculate_earned_credits(track_info, completed_courses):
     recommended = []
 
     # Required courses
-    for course, credit, semesters in track_info.get("required", []):
-        if course in completed_names:
-            total_credits += credit
-        else:
-            label = "(26년도 예정)" if FUTURE_SEMESTER in semesters else ""
-            if TARGET_SEMESTER in semesters or FUTURE_SEMESTER in semesters:
-                recommended.append((course + f" {label}".strip(), credit))
+    for item in track_info.get("required", []):
+        if isinstance(item, tuple):
+            course, credit, semesters = item
+            if course in completed_names:
+                total_credits += credit
+            else:
+                label = "(26년도 예정)" if FUTURE_SEMESTER in semesters else ""
+                if any(s in semesters for s in ["25-1", TARGET_SEMESTER, FUTURE_SEMESTER]):
+                    recommended.append((f"{course} {label}".strip(), credit))
+        elif isinstance(item, list):
+            # OR형식의 하위 리스트 처리
+            taken = False
+            for course, credit, semesters in item:
+                if course in completed_names:
+                    total_credits += credit
+                    taken = True
+                    break
+            if not taken:
+                available = [c for c in item if any(s in c[2] for s in ["25-1", TARGET_SEMESTER, FUTURE_SEMESTER])]
+                if available:
+                    c, credit, semesters = available[0]
+                    label = "(26년도 예정)" if FUTURE_SEMESTER in semesters else ""
+                    recommended.append((f"{c} {label}".strip(), credit))
 
     # OR groups
     for group in track_info.get("or_groups", []):
-        for course, credit, semesters in group:
-            if course in completed_names:
-                total_credits += credit
-                break
-        else:
-            available = [c for c in group if TARGET_SEMESTER in c[2] or FUTURE_SEMESTER in c[2]]
-            if available:
-                c, credit, semesters = available[0]
-                label = "(26년도 예정)" if FUTURE_SEMESTER in semesters else ""
-                recommended.append((c + f" {label}".strip(), credit))
+        if isinstance(group, list):
+            taken = False
+            for course, credit, semesters in group:
+                if course in completed_names:
+                    total_credits += credit
+                    taken = True
+                    break
+            if not taken:
+                available = [c for c in group if any(s in c[2] for s in ["25-1", TARGET_SEMESTER, FUTURE_SEMESTER])]
+                if available:
+                    c, credit, semesters = available[0]
+                    label = "(26년도 예정)" if FUTURE_SEMESTER in semesters else ""
+                    recommended.append((f"{c} {label}".strip(), credit))
 
     return total_credits, recommended
 
