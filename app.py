@@ -268,20 +268,46 @@ if st.button("추천 확인"):
 
         recs = recommend_next_courses(completed_list)
 
-        if not recs:
-            st.success("🎉 축하합니다! 모든 마이크로디그리 조건을 만족했을 수 있습니다.")
-        else:
-            st.subheader("📌 부족 학점 및 추천 과목 / 이수 상태")
-            for t, inf in recs.items():
-                st.markdown(f"### {t}")
+        progress_summary = []
+        for t, inf in recs.items():
+            if "초급" in t:
+                required = 6
+            elif "심화" in t or "전문" in t:
+                required = 9
+            else:
+                required = 0
 
+            total = inf.get("총이수학점", 0) if "총이수학점" in inf else required - inf.get("필요학점", required)
+            needed = max(required - total, 0)
+            progress = int((total / required) * 100) if required > 0 else 0
+
+            if "이수완료" in inf and inf["이수완료"]:
+                status = "🎉 이수 완료"
+            elif total > 0:
+                status = "진행 중"
+            else:
+                status = "미이수"
+
+            progress_summary.append([t, f"{total} / {required}", needed, f"{progress}%", status])
+
+        st.markdown("## 📊 마이크로디그리 이수 진척도 요약")
+        df_summary = pd.DataFrame(progress_summary, columns=["트랙", "이수 학점", "필요 학점", "진척도", "상태"])
+        st.table(df_summary)
+
+        st.markdown("---")
+        st.subheader("📘 트랙별 상세 안내")
+
+        for t, inf in recs.items():
+            st.markdown(f"### {t}")
+
+            if "이수완료" in inf and inf["이수완료"]:
+                st.success(f"🎉 {t} 트랙 이수 완료! (총 {inf['총이수학점']}학점)")
+            else:
                 if "메시지" in inf:
                     st.warning(inf["메시지"])
-
-                if "이수완료" in inf and inf["이수완료"]:
-                    st.success(f"🎉 {t} 트랙 이수 완료! (총 {inf['총이수학점']}학점)")
-                elif "필요학점" in inf:
-                    st.write(f"▶ 추가 필요 학점: {inf['필요학점']}학점")
+                if "필요학점" in inf:
+                    st.info(f"📘 추가 필요 학점: {inf['필요학점']}학점")
+                if "추천과목" in inf and inf["추천과목"]:
                     df = pd.DataFrame(sorted(inf["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
                     df.index += 1
                     st.table(df)
