@@ -1,23 +1,19 @@
 import streamlit as st
 import pandas as pd
 
-# =============================
-# 설정
-# =============================
 TARGET_SEMESTER = "25-2"
+FUTURE_SEMESTER = "26"
 
-# =============================
-# 트랙 정보 (기존 그대로 유지)
-# =============================
 track_courses = {
     "항공드론 초급": {
         "required": [
             ("항공우주학개론", 2, ["25-1", "25-2"]),
-            ("항공우주산업개론", 2, ["25-1", "25-2"]),
+            [("항공우주산업개론", 2, ["25-1", "25-2"]), ("드론시스템과미래산업". 2, [FUTURE_SEMESTER])],
             ("드론테크노비즈니스개론", 3, ["25-2"]),
             ("혁신융합세미나(항공드론)", 1, ["25-1"]),
             ("항공드론창의설계", 3, ["25-2"]),
-            ("비행원리및모의조종실습", 1, ["25-2"])
+            ("비행원리및모의조종실습", 1, ["25-2"]),
+            ("드론기초실습". 2, [FUTURE_SEMESTER])
         ],
         "or_groups": [],
         "pools": {}
@@ -28,42 +24,57 @@ track_courses = {
             ("머신러닝입문", 3, ["25-1"]),
             ("기초전자실험", 2, ["25-2"]),
             ("계측공학", 3, ["25-1"]),
-            ("항공전자공학", 3, ["25-1"]),
             ("열역학1", 3, ["25-1"]),
             ("자료구조및실습", 3, ["25-2"]),
             ("이산수학", 3, ["25-1"]),
             ("항공드론동역학", 3, ["25-2"]),
             ("항공기기체시스템", 3, ["25-1"]),
-            ("항행안전시설및공중항법", 3, ["25-1"]),
-            ("회로이론2", 3, ["25-2"]),
             ("드론강화학습", 3, ["25-2"]),
-            ("재료과학1", 3, ["25-1"]),
             ("배터리소재의이해", 3, ["25-2"]),
             ("항공역학", 3, ["25-1"]),
             ("지능센서공학", 3, ["25-2"]),
             ("항공우주구조역학", 3, ["25-1"]),            
-            ("전자회로1", 3, ["25-1"]),
-            ("전기자동차분배충전시스템", 1, ["25-1", "25-2"])    
+            ("전기자동차분배충전시스템", 1, ["25-1", "25-2"]),
+            ("드론임베디드프로그래밍". 3, [FUTURE_SEMESTER]),
+            ("항공드론기초전기전자". 3, [FUTURE_SEMESTER]),
+            ("항공드론신소재입문". 3, [FUTURE_SEMESTER]),
+            ("드론기체제작실습". 3, [FUTURE_SEMESTER]),
+            ("드론비즈니스창업론". 3, [FUTURE_SEMESTER]),
+            ("배터리시스템설계". 3, [FUTURE_SEMESTER]),
+            ("영상처리및응용". 3, [FUTURE_SEMESTER]),
+            ("항공드론전기동력입문". 3, [FUTURE_SEMESTER])
         ],
         "or_groups": [
             [("재료역학1", 3, ["25-1"]), ("기초역학", 3, ["25-1"])],
             [("제어공학응용", 3, ["25-2"]),
              ("제어시스템설계", 3, ["25-1"]),
              ("자동제어", 3, ["25-1"])],
-            [("전기전자공학", 3, ["25-1"]), ("전기전자개론및실습", 3, ["25-1"])]
+            [("전기전자공학", 3, ["25-1"]), ("전기전자개론및실습", 3, ["25-1"])],
+            [("항공전자공학", 3, ["25-1"]), ("에비오닉스입문", 3, [FUTURE_SEMESTER])],
+            [("항행안전시설및공중항법", 3, ["25-1"]), ("항행안전시설및항법", 3, [FUTURE_SEMESTER])],
+            [("회로이론2", 3, ["25-2"]), ("회로시스템", 3, [FUTURE_SEMESTER])],
+            ("재료과학1", 3, ["25-1"]), ("드론부품용신소재응용", 3, [FUTURE_SEMESTER])],
+            [("전자회로1", 3, ["25-1"]), ("항공드론전자회로", 3, [FUTURE_SEMESTER])]            
         ],
         "pools": {}
     },
     "항공드론 시스템 전문": {
         "required": [
             ("항공드론비행제어", 3, ["25-2"]),
-            ("기계가공시스템", 3, ["25-2"]),
             ("항공ICT공학", 3, ["25-1"]),
-            ("항공드론CapstoneDesign1", 3, ["25-2"])
+            ("드론운용IT시스템", 3, [FUTURE_SEMESTER]),            
+            ("항공드론CapstoneDesign1", 3, ["25-2"]),
+            ("항공드론AI플래닝", 3, [FUTURE_SEMESTER]),
+            ("생성형AI응용", 3, [FUTURE_SEMESTER]),
+            ("드론임베디드시스템설계", 3, [FUTURE_SEMESTER]),
+            ("항공MRO실습", 3, [FUTURE_SEMESTER]),
+            ("AI자율비행", 3, [FUTURE_SEMESTER])
         ],
         "must_pass": ["항공드론CapstoneDesign1"],
         "or_groups": [
-            [("복합재료", 3, ["25-1"]), ("반도체소재개론", 3, ["25-1"])]
+            [("복합재료", 3, ["25-1"]), ("반도체소재개론", 3, ["25-1"])],
+            [("확률론적로봇공학", 3, ["25-1"]), ("확률론적드론공학", 3, [FUTURE_SEMESTER])],
+            [("기계가공시스템", 3, ["25-2"]),  ("스마트설계제조", 3, [FUTURE_SEMESTER])]
         ],
         "pools": {}
     },
@@ -134,110 +145,102 @@ track_courses = {
     },
 }
 
-# =============================
-# 공통 함수
-# =============================
-def build_course_info():
-    info = {}
-    for data in track_courses.values():
-        for course, credit, semesters in data.get("required", []):
-            info[course] = (credit, semesters)
-        for group in data.get("or_groups", []):
+def build_course_info(track_courses):
+    course_info = {}
+    for info in track_courses.values():
+        for course, credit, semesters in info.get("required", []):
+            course_info[course] = (credit, semesters)
+        for group in info.get("or_groups", []):
             for course, credit, semesters in group:
-                info[course] = (credit, semesters)
-        for pools in data.get("pools", {}).values():
+                course_info[course] = (credit, semesters)
+        for pools in info.get("pools", {}).values():
             for item in pools:
                 if isinstance(item, tuple):
-                    info[item[0]] = (item[1], item[2])
+                    course, credit, semesters = item
+                    course_info[course] = (credit, semesters)
                 else:
                     for course, credit, semesters in item:
-                        info[course] = (credit, semesters)
-    return info
+                        course_info[course] = (credit, semesters)
+    return course_info
 
-course_info = build_course_info()
+course_info = build_course_info(track_courses)
 
-def evaluate_courses(info, completed):
-    completed_names = {n for n, _ in completed}
-    total, recommend = 0, []
-    for course, credit, sem in info.get("required", []):
+def calculate_earned_credits(track_info, completed_courses):
+    completed_names = {name for name, _ in completed_courses}
+    total_credits = 0
+    recommended = []
+
+    # Required courses
+    for course, credit, semesters in track_info.get("required", []):
         if course in completed_names:
-            total += credit
-        elif TARGET_SEMESTER in sem:
-            recommend.append((course, credit))
-    for group in info.get("or_groups", []):
-        if any(c in completed_names for c, _, _ in group):
-            total += group[0][1]
+            total_credits += credit
         else:
-            avail = [c for c in group if TARGET_SEMESTER in c[2]]
-            if avail:
-                recommend.append((avail[0][0], avail[0][1]))
-    return total, recommend
+            label = "(26년도 예정)" if FUTURE_SEMESTER in semesters else ""
+            if TARGET_SEMESTER in semesters or FUTURE_SEMESTER in semesters:
+                recommended.append((course + f" {label}".strip(), credit))
 
-def evaluate_pools(pools, completed):
-    completed_names = {n for n, _ in completed}
-    pool_status, recommendations = {}, {}
-    for name, items in pools.items():
-        pool_credit, rec = 0, []
-        for item in items:
-            if isinstance(item, tuple):
-                c, cr, sem = item
-                if c in completed_names:
-                    pool_credit += cr
-                elif TARGET_SEMESTER in sem:
-                    rec.append((c, cr))
-            else:
-                if any(c in completed_names for c, _, _ in item):
-                    pool_credit += item[0][1]
-                else:
-                    avail = [c for c in item if TARGET_SEMESTER in c[2]]
-                    if avail:
-                        rec.append((avail[0][0], avail[0][1]))
-        pool_status[name] = pool_credit
-        if pool_credit < 3:
-            recommendations[name] = {"필요학점": 3 - pool_credit, "추천과목": rec}
-    return pool_status, recommendations
+    # OR groups
+    for group in track_info.get("or_groups", []):
+        for course, credit, semesters in group:
+            if course in completed_names:
+                total_credits += credit
+                break
+        else:
+            available = [c for c in group if TARGET_SEMESTER in c[2] or FUTURE_SEMESTER in c[2]]
+            if available:
+                c, credit, semesters = available[0]
+                label = "(26년도 예정)" if FUTURE_SEMESTER in semesters else ""
+                recommended.append((c + f" {label}".strip(), credit))
 
-def recommend_next_courses(completed):
-    result = {}
+    return total_credits, recommended
+
+def recommend_next_courses(completed_courses):
+    recommendations = {}
     for track, info in track_courses.items():
-        must = info.get("must_pass", [])
-        missing = [c for c in must if c not in {n for n, _ in completed}]
-        msg = f"⚠️ 반드시 이수해야 하는 과목 미이수: {', '.join(missing)}" if missing else None
-        is_special = "특화" in track or "챌린저" in track
-        if is_special:
-            pool_status, pool_rec = evaluate_pools(info["pools"], completed)
-            if pool_rec:
-                result[track] = {"Pool별 필요학점": pool_rec}
-                if msg: result[track]["메시지"] = msg
-        else:
-            total, recommend = evaluate_courses(info, completed)
-            if info.get("pools"):
-                pool_credit, pool_rec = evaluate_pools(info["pools"], completed)
-                total += sum(pool_credit.values())
-                recommend.extend(sum([v["추천과목"] for v in pool_rec.values()], []))
-            need = 6 - total if "초급" in track else (9 - total if ("심화" in track or "전문" in track) else None)
-            if need and need > 0:
-                result[track] = {"필요학점": need, "추천과목": recommend}
-                if msg: result[track]["메시지"] = msg
-    return result
+        is_special = "특화" in track or "챌린저" in track or "파일럿" in track
 
-def get_completed_track_matches(completed):
-    completed_names = {n for n, _ in completed}
+        must_pass_courses = info.get("must_pass", [])
+        missing_must = [c for c in must_pass_courses if c not in {n for n, _ in completed_courses}]
+        must_message = None
+        if missing_must:
+            must_message = f"⚠️ 반드시 이수해야 하는 과목 미이수: {', '.join(missing_must)}"
+
+        total_credits = 0
+        recommended = []
+
+        rc, rr = calculate_earned_credits(info, completed_courses)
+        total_credits += rc
+        recommended.extend(rr)
+
+        needed = None
+        if "초급" in track:
+            needed = 6 - total_credits
+        elif "심화" in track or "전문" in track:
+            needed = 9 - total_credits
+
+        if needed is not None and needed > 0:
+            rec_info = {
+                "필요학점": needed,
+                "추천과목": recommended
+            }
+            if must_message:
+                rec_info["메시지"] = must_message
+            recommendations[track] = rec_info
+
+    return recommendations
+
+def get_completed_track_matches(completed_courses):
+    completed_names = {name for name, _ in completed_courses}
     matches = {}
     for track, info in track_courses.items():
         all_courses = {c for c, _, _ in info.get("required", [])}
-        for g in info.get("or_groups", []):
-            all_courses |= {c for c, _, _ in g}
-        for p in info.get("pools", {}).values():
-            for item in p:
-                all_courses |= {item[0]} if isinstance(item, tuple) else {c for c, _, _ in item}
-        match = sorted(all_courses & completed_names)
-        if match: matches[track] = match
+        for group in info.get("or_groups", []):
+            all_courses |= {c for c, _, _ in group}
+        matched = all_courses & completed_names
+        if matched:
+            matches[track] = sorted(matched)
     return matches
 
-# =============================
-# Streamlit UI
-# =============================
 st.title("✈️ 항공드론 MD 이수 확인 시스템")
 
 st.markdown(
@@ -254,7 +257,14 @@ st.markdown(
 )
 
 completed = st.text_area("25년도에 수강한 과목명을 입력하세요")
-completed_list = [(n.strip(), course_info.get(n.strip(), (3, []))[0]) for n in completed.split(",") if n.strip()]
+
+completed_list = []
+for item in completed.split(","):
+    name = item.strip()
+    if not name:
+        continue
+    credit, semesters = course_info.get(name, (3, []))
+    completed_list.append((name, credit))
 
 if st.button("추천 확인"):
     if not completed_list:
@@ -267,6 +277,7 @@ if st.button("추천 확인"):
                 st.write(f"- **{t}**: {', '.join(cs)}")
 
         recs = recommend_next_courses(completed_list)
+
         if not recs:
             st.success("🎉 축하합니다! 모든 마이크로디그리 조건을 만족했을 수 있습니다.")
         else:
@@ -275,21 +286,16 @@ if st.button("추천 확인"):
                 st.markdown(f"### {t}")
                 if "메시지" in inf:
                     st.warning(inf["메시지"])
+
                 if "필요학점" in inf:
                     st.write(f"▶ 추가 필요 학점: {inf['필요학점']}학점")
                     df = pd.DataFrame(sorted(inf["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
                     df.index += 1
                     st.table(df)
-                elif "Pool별 필요학점" in inf:
-                    for pool, val in inf["Pool별 필요학점"].items():
-                        st.write(f"▶ **{pool}**: 추가 필요 학점 {val['필요학점']}학점")
-                        df = pd.DataFrame(sorted(val["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
-                        df.index += 1
-                        st.table(df)
 
 st.markdown(
     """
-    <p style="font-size:15px; color:red;">이 프로그램은 참고용으로 25년도 교육과정에만 해당됩니다.<br>
+    <p style="font-size:15px; color:red;">이 프로그램은 참고용으로 25년도 교육과정에만 해당되며 26년도 교과목은 미확정상태입니다.<br>
     정확한 내용은 반드시 로드맵에서 확인해주세요!</p>
     📖 마이크로디그리 로드맵 보기: 
     <a href="https://docs.google.com/spreadsheets/d/1qSkAp4q1gao0iFL8uYXxpkAXxBQNLOGrnBdWZ4WZlLU/edit?gid=143772626#gid=143772626" target="_blank">여기</a><br>
