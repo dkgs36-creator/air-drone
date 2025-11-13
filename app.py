@@ -291,6 +291,7 @@ if st.button("추천 확인"):
 
         st.markdown("## 📊 마이크로디그리 이수 진척도 요약")
         df_summary = pd.DataFrame(progress_summary, columns=["트랙", "이수 학점", "필요 학점", "진척도", "상태"])
+        df_summary = df_summary.sort_values(by="진척도", ascending=False)
         df_summary.index = range(1, len(df_summary) + 1)
         st.table(df_summary)
 
