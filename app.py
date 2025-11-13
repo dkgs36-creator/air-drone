@@ -271,13 +271,16 @@ if st.button("추천 확인"):
         if not recs:
             st.success("🎉 축하합니다! 모든 마이크로디그리 조건을 만족했을 수 있습니다.")
         else:
-            st.subheader("📌 부족 학점 및 추천 과목")
+            st.subheader("📌 부족 학점 및 추천 과목 / 이수 상태")
             for t, inf in recs.items():
                 st.markdown(f"### {t}")
+
                 if "메시지" in inf:
                     st.warning(inf["메시지"])
 
-                if "필요학점" in inf:
+                if "이수완료" in inf and inf["이수완료"]:
+                    st.success(f"🎉 {t} 트랙 이수 완료! (총 {inf['총이수학점']}학점)")
+                elif "필요학점" in inf:
                     st.write(f"▶ 추가 필요 학점: {inf['필요학점']}학점")
                     df = pd.DataFrame(sorted(inf["추천과목"], key=lambda x: x[0]), columns=["과목명", "학점"])
                     df.index += 1
