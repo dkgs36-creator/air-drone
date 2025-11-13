@@ -156,7 +156,6 @@ def calculate_earned_credits(track_info, completed_courses):
 
     return total_credits, recommended
 
-
 def recommend_next_courses(completed_courses):
     recommendations = {}
     for track, info in track_courses.items():
@@ -170,17 +169,27 @@ def recommend_next_courses(completed_courses):
         total_credits = rc
         recommended = rr
 
-        needed = None
+        # 트랙별 필요 학점 계산
         if "초급" in track:
-            needed = 6 - total_credits
+            required = 6
         elif "심화" in track or "전문" in track:
-            needed = 9 - total_credits
+            required = 9
+        else:
+            required = 0
 
-        if needed is not None and needed > 0:
+        needed = required - total_credits
+
+        # ✅ 이수 완료 여부 표시 추가
+        if needed <= 0:
+            rec_info = {"이수완료": True, "총이수학점": total_credits}
+            if must_message:
+                rec_info["메시지"] = must_message
+        else:
             rec_info = {"필요학점": needed, "추천과목": recommended}
             if must_message:
                 rec_info["메시지"] = must_message
-            recommendations[track] = rec_info
+
+        recommendations[track] = rec_info
 
     return recommendations
 
